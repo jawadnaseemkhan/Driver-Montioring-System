@@ -45,7 +45,7 @@ def detect_lanes(frame):
     
     return frame
 
-def process_videos(directory):
+def process_road_videos(directory):
     # Loop through all numbered folders (01 to 74)
     for folder_num in range(1, 75):
         folder_name = f"{folder_num:02d}"  # Format folder name with leading zeros
@@ -86,6 +86,6 @@ def process_videos(directory):
     # Close all OpenCV windows
     cv2.destroyAllWindows()
 
-# Directory containing the video subfolders
-directory = '/lhome/jawakha/Desktop/University/Thesis/Dataset/DREYEVE_DATA'
-process_videos(directory)
+# # Directory containing the video subfolders
+# lane_assist_directory = '/lhome/jawakha/Desktop/University/Thesis/Dataset/DREYEVE_DATA'
+# process_road_videos(lane_assist_directory)
