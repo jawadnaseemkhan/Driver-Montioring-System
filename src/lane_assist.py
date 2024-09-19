@@ -2,6 +2,12 @@ import os
 import cv2
 import numpy as np
 
+def adjust_brightness_contrast(frame):
+    # Convert to YUV color space to enhance brightness and contrast
+    yuv = cv2.cvtColor(frame, cv2.COLOR_BGR2YUV)
+    yuv[:, :, 0] = cv2.equalizeHist(yuv[:, :, 0])  # Equalize the histogram of the Y channel
+    return cv2.cvtColor(yuv, cv2.COLOR_YUV2BGR)
+
 def detect_lanes(frame):
     # Convert the frame to grayscale
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -10,38 +16,47 @@ def detect_lanes(frame):
     blurred = cv2.GaussianBlur(gray, (5, 5), 0)
     
     # Perform edge detection using Canny with adjusted thresholds
-    edges = cv2.Canny(blurred, 100, 200)  # Increased lower threshold to reduce noise
+    edges = cv2.Canny(blurred, 50, 150)  # Adjusted lower threshold
     
-    # Define a tighter region of interest (ROI) to avoid cars and other objects
+    # Define a higher region of interest (ROI) to avoid bonnet and focus on the road
     height, width = frame.shape[:2]
     
-    # Narrower ROI to focus only on the lane marking areas ahead of the car
+    # Raise the bottom portion of the ROI to avoid detecting the car's bonnet
     roi_vertices = np.array([[
-        (width * 0.3, height * 0.7),  # Bottom-left corner of the ROI
-        (width * 0.4, height * 0.5),  # Upper-left corner of the ROI
-        (width * 0.6, height * 0.5),  # Upper-right corner of the ROI
-        (width * 0.7, height * 0.7)   # Bottom-right corner of the ROI
+        (width * 0.2, height * 0.9),  # Bottom-left corner
+        (width * 0.4, height * 0.6),  # Upper-left corner
+        (width * 0.6, height * 0.6),  # Upper-right corner
+        (width * 0.8, height * 0.9)   # Bottom-right corner
     ]], dtype=np.int32)
     
     mask = np.zeros_like(edges)
     cv2.fillPoly(mask, roi_vertices, 255)
     masked_edges = cv2.bitwise_and(edges, mask)
     
-    # Apply Hough Transform to detect lines (tuned parameters)
+    # Check if there are any detected edges
+    if masked_edges is None or np.sum(masked_edges) == 0:
+        print("No edges detected.")
+        return frame  # Return the original frame if no edges were detected
+    
+    # Apply morphological operations (closing to fill gaps)
+    kernel = np.ones((5, 5), np.uint8)
+    masked_edges = cv2.morphologyEx(masked_edges, cv2.MORPH_CLOSE, kernel)
+    
+    # Apply Hough Transform to detect lines
     lines = cv2.HoughLinesP(
         masked_edges,
         rho=1,
         theta=np.pi / 180,
-        threshold=120,  # Increased to focus on stronger lines
-        minLineLength=180,  # Increased to focus on longer lane lines
-        maxLineGap=50  # Reduced to focus on more continuous lines
+        threshold=120, 
+        minLineLength=100, 
+        maxLineGap=50
     )
     
     # Draw detected lines on the original frame
     if lines is not None:
         for line in lines:
             x1, y1, x2, y2 = line[0]
-            cv2.line(frame, (x1, y1), (x2, y2), (0, 255, 0), 3)
+            cv2.line(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
     
     return frame
 
