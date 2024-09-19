@@ -8,8 +8,11 @@ import numpy as np
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor('/lhome/jawakha/Desktop/Project/Dataset/Shape_Predictor/shape_predictor_68_face_landmarks.dat')
 
+# Initialize FER with GPU (if available)
+# detector = FER(mtcnn=True)
+
 # Initialize the FER emotion detector
-emotion_detector = FER()
+emotion_detector = FER(mtcnn=True)
 
 # Function to calculate Eye Aspect Ratio (EAR)
 def eye_aspect_ratio(eye):
