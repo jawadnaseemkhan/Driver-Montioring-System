@@ -23,11 +23,12 @@ def detect_lanes(frame):
     
     # Raise the bottom portion of the ROI to avoid detecting the car's bonnet
     roi_vertices = np.array([[
-        (width * 0.2, height * 0.9),  # Bottom-left corner
-        (width * 0.4, height * 0.6),  # Upper-left corner
-        (width * 0.6, height * 0.6),  # Upper-right corner
-        (width * 0.8, height * 0.9)   # Bottom-right corner
+        (width * 0.1, height * 0.7),  # Bottom-left corner (moved higher)
+        (width * 0.4, height * 0.5),  # Upper-left corner
+        (width * 0.6, height * 0.5),  # Upper-right corner
+        (width * 0.9, height * 0.7)   # Bottom-right corner (moved higher)
     ]], dtype=np.int32)
+
     
     mask = np.zeros_like(edges)
     cv2.fillPoly(mask, roi_vertices, 255)
@@ -39,7 +40,7 @@ def detect_lanes(frame):
         return frame  # Return the original frame if no edges were detected
     
     # Apply morphological operations (closing to fill gaps)
-    kernel = np.ones((5, 5), np.uint8)
+    kernel = np.ones((5, 5), np.uint8)  
     masked_edges = cv2.morphologyEx(masked_edges, cv2.MORPH_CLOSE, kernel)
     
     # Apply Hough Transform to detect lines
