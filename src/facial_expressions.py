@@ -1,7 +1,7 @@
 import cv2
 import dlib
 from scipy.spatial import distance
-from fer import FER  # Facial Expression Recognition
+from fer import FER  
 import numpy as np
 
 # Initialize the dlib face detector and shape predictor

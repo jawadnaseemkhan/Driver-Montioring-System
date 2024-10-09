@@ -2,7 +2,6 @@ import os
 import cv2
 import numpy as np
 
-
 # Global variable to store the bonnet Y-coordinate
 bonnet_end_y = None
 
@@ -18,12 +17,21 @@ def adjust_brightness_contrast(frame):
     yuv[:, :, 0] = cv2.equalizeHist(yuv[:, :, 0])
     return cv2.cvtColor(yuv, cv2.COLOR_YUV2BGR)
 
-def visualize_roi(frame, roi_vertices):
+def visualize_roi_with_center(frame, roi_vertices):
     overlay = frame.copy()
+    
+    # Draw the ROI as a filled polygon
     cv2.fillPoly(overlay, roi_vertices, (0, 255, 255))
+    
+    # Blend the overlay with the original frame to create a faded effect
     alpha = 0.3
     cv2.addWeighted(overlay, alpha, frame, 1 - alpha, 0, frame)
-    return frame
+
+    # Calculate and draw the center point of the ROI
+    roi_center = np.mean(roi_vertices[0], axis=0).astype(int)
+    cv2.circle(frame, tuple(roi_center), 5, (0, 0, 255), -1)  # Draw red dot at center
+    
+    return frame, roi_center
 
 def detect_lanes(frame):
     global bonnet_end_y
@@ -37,20 +45,20 @@ def detect_lanes(frame):
     edges = cv2.Canny(blurred, 40, 120)
 
     height, width = frame.shape[:2]
-
+    
     # Fixed height for the ROI (e.g., 20% of the frame height)
     fixed_roi_height_ratio = 0.2
     roi_top_y = max(0, bonnet_end_y - int(height * fixed_roi_height_ratio))
 
-    # Define the ROI vertices with fixed height
+    # Define the ROI vertices with a fixed height
     roi_vertices = np.array([[
-        (width * 0.3, bonnet_end_y),
-        (width * 0.3, roi_top_y),
+        (width * 0.2, bonnet_end_y),
+        (width * 0.2, roi_top_y),
         (width * 0.8, roi_top_y),
         (width * 0.8, bonnet_end_y)
     ]], dtype=np.int32)
 
-    frame = visualize_roi(frame, roi_vertices)
+    frame, roi_center = visualize_roi_with_center(frame, roi_vertices)
 
     mask = np.zeros_like(edges)
     cv2.fillPoly(mask, roi_vertices, 255)
@@ -82,15 +90,15 @@ def detect_lanes(frame):
             cv2.line(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
     lane_center = calculate_lane_center(left_lines, right_lines, width)
-    vehicle_center = width / 2
+    vehicle_center = roi_center[0]  # X-coordinate of the ROI center
 
     feedback = "Centered"
     if lane_center is not None:
         deviation = vehicle_center - lane_center
         if deviation > 20:
-            feedback = "Steer Right"
+            feedback = "Move Left"
         elif deviation < -20:
-            feedback = "Steer Left"
+            feedback = "Move Right"
     
     # Display the feedback on the frame
     font = cv2.FONT_HERSHEY_SIMPLEX
@@ -151,5 +159,5 @@ def process_road_videos(directory):
     cv2.destroyAllWindows()
 
 # Directory containing the video subfolders
-#lane_assist_directory = '/lhome/jawakha/Desktop/Project/Dataset/DREYEVE_DATA'
-#process_road_videos(lane_assist_directory)
+lane_assist_directory = '/lhome/jawakha/Desktop/Project/Dataset/DREYEVE_DATA'
+process_road_videos(lane_assist_directory)
