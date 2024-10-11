@@ -1,6 +1,7 @@
 import os
 import cv2
 import numpy as np
+import matplotlib.pyplot as plt
 
 # Global variable to store the bonnet Y-coordinate
 bonnet_end_y = None
@@ -32,7 +33,7 @@ def detect_lanes(frame):
     
     # Wait until bonnet_end_y is set by the user
     if bonnet_end_y is None:
-        return frame
+        return frame, "Waiting for bonnet end click"
     
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     blurred = cv2.GaussianBlur(gray, (5, 5), 0)
@@ -97,14 +98,14 @@ def detect_lanes(frame):
 
     # Display the feedback and center point on the frame
     font = cv2.FONT_HERSHEY_SIMPLEX
-    cv2.putText(frame, f"Steer Position: {feedback}", (50, 50), font, 1, (0, 0, 255), 2, cv2.LINE_AA)
+    cv2.putText(frame, f"Steering Feedback: {feedback}", (50, 50), font, 1, (0, 0, 255), 2, cv2.LINE_AA)
 
     # Draw the lane center and vehicle center for visualization
     if lane_center is not None:
         cv2.circle(frame, (int(lane_center), int(roi_top_y + (bonnet_end_y - roi_top_y) / 2)), 5, (255, 0, 0), -1)  # Blue for lane center
         cv2.circle(frame, (int(vehicle_center), int(roi_top_y + (bonnet_end_y - roi_top_y) / 2)), 5, (0, 0, 255), -1)  # Red for vehicle center
     
-    return frame
+    return frame, feedback
 
 # Function to calculate the lane center
 def calculate_lane_center(left_lines, right_lines, frame_width):
@@ -120,11 +121,14 @@ def calculate_lane_center(left_lines, right_lines, frame_width):
     lane_center = (left_mean + right_mean) / 2
     return lane_center
 
-# Function to process all videos in the given directory
+# Function to process all videos in the given directory and plot feedback
 def process_road_videos(directory):
     global bonnet_end_y
+
+    # Variables to track steering states
+    feedback_counts = {"Centered": 0, "Steer Left": 0, "Steer Right": 0, "Waiting for bonnet end click": 0}
     
-    for folder_num in range(1, 8):
+    for folder_num in range(1, 5):
         folder_name = f"{folder_num:02d}"
         video_path = os.path.join(directory, folder_name, 'video_garmin.avi')
 
@@ -142,8 +146,10 @@ def process_road_videos(directory):
             if not ret:
                 break  # Break when no more frames are available
             
-            frame_with_lanes = detect_lanes(frame)
+            frame_with_lanes, feedback = detect_lanes(frame)
             
+            feedback_counts[feedback] += 1  # Track feedback for each frame
+
             cv2.imshow('Lane Detection', frame_with_lanes)
             
             key = cv2.waitKey(1) & 0xFF
@@ -160,6 +166,21 @@ def process_road_videos(directory):
     
     cv2.destroyAllWindows()
 
+    # Plot the steering feedback as a bar chart
+    plot_feedback(feedback_counts)
+
+# Function to plot steering feedback
+def plot_feedback(feedback_counts):
+    labels = list(feedback_counts.keys())
+    values = list(feedback_counts.values())
+
+    plt.bar(labels, values, color=['blue', 'green', 'red', 'gray'])
+    plt.xlabel("Steering Feedback")
+    plt.ylabel("Count (Number of Frames)")
+    plt.title("Steering Feedback Distribution")
+    plt.show()
+
+# Example usage:
 # Directory containing the video subfolders
-lane_assist_directory = '/lhome/jawakha/Desktop/Project/Dataset/data'
+lane_assist_directory = '/lhome/jawakha/Desktop/Project/Dataset/DREYEVE_DATA'
 process_road_videos(lane_assist_directory)

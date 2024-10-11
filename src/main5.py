@@ -32,6 +32,8 @@ def main():
     cv2.namedWindow('Lane Detection with Camera', cv2.WINDOW_NORMAL)
     cv2.setMouseCallback('Lane Detection with Camera', mouse_callback)  # Set up mouse callback to capture clicks
     
+    drowsiness_detected = False  # Initialize the flag for drowsiness detection
+
     while road_cap.isOpened() and cam_cap.isOpened():
         ret_road, road_frame = road_cap.read()
         ret_cam, cam_frame = cam_cap.read()
@@ -71,12 +73,21 @@ def main():
         # Process camera frame for drowsiness and emotions
         cam_frame_processed, frame_counter = detect_drowsiness_and_emotions(cam_frame, frame_counter)
         
+        # Check if drowsiness was detected and set flag
+        if frame_counter >= 20:  # Adjust based on your drowsiness detection logic
+            drowsiness_detected = True
+        
         # Resize the camera frame to be smaller (e.g., 320x180) for the corner display
         cam_frame_small = cv2.resize(cam_frame_processed, (320, 180))
         
         # Ensure that the camera feed is correctly placed within the boundaries of the road frame
         if height >= 180 and width >= 320:
             road_frame_with_lanes[height-180:height, 0:320] = cam_frame_small
+        
+        # If drowsiness is detected, show the alert on the road frame as well
+        if drowsiness_detected:
+            cv2.putText(road_frame_with_lanes, "Driver Sleeping!", (50, 100),
+                        cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 0, 255), 3)
         
         # Display the combined frame in a maximized window
         cv2.imshow('Lane Detection with Camera', road_frame_with_lanes)
@@ -89,6 +100,7 @@ def main():
             video_path = os.path.join(road_video_directory, f"{folder_num:02d}", 'video_garmin.avi')
             road_cap.release()
             road_cap = cv2.VideoCapture(video_path)  # Reload new video
+            drowsiness_detected = False  # Reset the drowsiness flag
         elif key == 27:  # ESC key pressed
             print("Terminating...")
             road_cap.release()

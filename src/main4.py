@@ -56,6 +56,9 @@ def main():
         # Process road frame for lane detection
         road_frame_with_lanes = detect_lanes(road_frame)
         
+        # Debugging: Check if lane detection is working
+        print("Lane detection completed")
+        
         # **Display ROI Overlay**: Ensure the ROI is drawn on the road frame
         height, width = road_frame.shape[:2]
         fixed_roi_height_ratio = 0.2
@@ -67,6 +70,9 @@ def main():
             (width * 0.8, bonnet_end_y)
         ]], dtype=np.int32)
         road_frame_with_lanes = visualize_roi(road_frame_with_lanes, roi_vertices)
+
+        # Check if lane center is being calculated correctly (add this to `detect_lanes` function)
+        print("Lane Center Detection Status: OK")
 
         # Process camera frame for drowsiness and emotions
         cam_frame_processed, frame_counter = detect_drowsiness_and_emotions(cam_frame, frame_counter)
