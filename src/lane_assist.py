@@ -124,7 +124,7 @@ def calculate_lane_center(left_lines, right_lines, frame_width):
 def process_road_videos(directory):
     global bonnet_end_y
     
-    for folder_num in range(1, 8):
+    for folder_num in range(1, 10):
         folder_name = f"{folder_num:02d}"
         video_path = os.path.join(directory, folder_name, 'video_garmin.avi')
 
@@ -146,7 +146,7 @@ def process_road_videos(directory):
             
             cv2.imshow('Lane Detection', frame_with_lanes)
             
-            key = cv2.waitKey(1) & 0xFF
+            key = cv2.waitKey(0) & 0xFF
             if key == ord('q'):
                 print(f"Skipping video: {video_path}")
                 break
