@@ -1,44 +1,73 @@
-Integrating Facial Expression Analysis and Road Maneuvers Monitoring for Enhanced Driving Performance
-Overview
+# **Integrated Driver Monitoring and Lane Detection System**
 
-This project focuses on developing a system that integrates facial expression analysis with road maneuver monitoring to improve driving performance. By analyzing the driver's emotions and correlating them with vehicle movements and road conditions, the system aims to enhance road safety and reduce driver stress.
-Objectives
+## **Overview**
+This project combines **driver facial expression analysis** and **road maneuvering assessment** to enhance driving performance and safety. By integrating real-time **facial expression recognition** with advanced **lane detection techniques**, the system provides insights into driver behavior and road conditions, enabling a more secure driving experience.
 
-    Facial Expression Analysis: Detect and analyze the driver’s emotions in real-time using computer vision techniques.
-    Road Maneuver Monitoring: Track vehicle maneuvers such as lane changes, turns, and speed variations.
-    Performance Enhancement: Correlate facial data with driving maneuvers to provide actionable feedback, improving overall driving performance.
+## **Key Features**
+1. **Driver Monitoring**:
+   - Real-time detection of drowsiness and emotional states using facial landmarks and emotion recognition.
+   - Eye Aspect Ratio (EAR) calculation for drowsiness detection.
+   - Webcam integration for live monitoring.
 
-Planned Features
+2. **Lane Detection**:
+   - Advanced lane detection using semantic segmentation and computer vision techniques.
+   - Resilience to varied weather and lighting conditions, including night, rain, and low visibility.
+   - Region of Interest (ROI) adjustment for dynamic environments.
 
-    Facial Recognition and Emotion Detection using libraries such as OpenCV and deep learning models.
-    Road Maneuver Monitoring leveraging road data from driving simulators or real-world sensors.
-    Data Integration: Combining facial expression data with driving maneuvers for comprehensive analysis.
-    Real-Time Feedback: Developing an interface to provide instant feedback or warnings to the driver.
+3. **Integrated System**:
+   - Simultaneous road video processing and driver monitoring.
+   - Real-time overlay of the webcam feed on road video for comprehensive visualization.
 
-Technologies
+---
 
-    Python for data processing and algorithm development.
-    OpenCV for facial expression detection.
-    scikit-learn or TensorFlow for machine learning models.
-    Driving Simulators (e.g., CARLA) or real-world data for monitoring road behavior.
 
-Repository Structure (Planned)
+### **Components**
+- **Driver Monitoring**:
+  - Facial expression analysis using **FER** and **dlib**.
+  - Detection of fatigue and emotions like excitement, sadness, or drunkenness.
 
-plaintext
+- **Lane Detection**:
+  - Road video analysis with **DeepLabV3** semantic segmentation.
+  - Edge detection and Hough Transform for lane identification.
 
-.
-├── README.md              # Project documentation
-├── src/                   # Source code for facial analysis and road monitoring (coming soon)
-├── data/                  # Data sets for facial expressions and road maneuvers (coming soon)
-├── models/                # Machine learning models (coming soon)
-└── tests/                 # Unit tests for code validation (coming soon)
+- **Integration**:
+  - Combined feed from the road video and webcam for real-time analysis.
 
-Getting Started (Coming Soon)
+---
 
-    Clone the repository:
+## **Technologies Used**
+- **Programming Language**: Python
+- **Libraries & Tools**:
+  - OpenCV
+  - TensorFlow / PyTorch (for DeepLabV3)
+  - Dlib
+  - FER (Facial Expression Recognition)
+  - CVAT (for annotation)
+- **Dataset**:
+  - [DREYEVE Dataset](https://paperswithcode.com/dataset/dr-eye-ve) for road videos and frames.
 
-    bash
+---
 
-git clone https://github.com/jawadnaseemkhan/Thesis.git
+## **Setup & Installation**
+### **Requirements**
+- Python 3.8+
+- Virtual Environment (optional but recommended)
+- Required Libraries:
+  ```bash
+  pip install -r requirements.txt
 
-Set up the environment and install dependencies (instructions coming soon).
+
+### **Project Structure**
+        ├── data/
+    │   ├── videos/             # Input road videos
+    │   ├── frames/             # Extracted frames for annotation
+    ├── models/
+    │   ├── checkpoints/        # Pretrained model weights
+    ├── scripts/
+    │   ├── lane_assist.py      # Lane detection script
+    │   ├── facial_expressions.py  # Facial expression recognition
+    │   ├── main.py             # Integrated system script
+    ├── output/
+    │   ├── segmentation/       # Lane segmentation results
+    │   ├── logs/               # Log files
+    ├── README.md               # Project documentation
